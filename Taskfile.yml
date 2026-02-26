@@ -1,5 +1,5 @@
 version: "3"
-
+dotenv: ['apps/api/.env']
 tasks:
   default:
     desc: Show available tasks
@@ -48,6 +48,12 @@ tasks:
     dir: apps/api
     cmds:
       - sqlc generate
+
+  api:tidy:
+    desc: Tidy Go dependencies
+    dir: apps/api
+    cmds:
+      - go mod tidy
 
   build:
     desc: Build all apps
