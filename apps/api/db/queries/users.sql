@@ -43,6 +43,30 @@ SET
 WHERE id = $1
 RETURNING *;
 
+-- name: UpdateUserPassword :exec
+UPDATE users
+SET
+    password_hash = $2,
+    reset_token = NULL,
+    reset_token_expires_at = NULL,
+    updated_at = NOW()
+WHERE id = $1;
+
+-- name: SetUserResetToken :exec
+UPDATE users
+SET
+    reset_token = $2,
+    reset_token_expires_at = $3,
+    updated_at = NOW()
+WHERE id = $1;
+
+-- name: UpdateUserLastLogin :exec
+UPDATE users
+SET
+    last_login_at = NOW(),
+    updated_at = NOW()
+WHERE id = $1;
+
 -- name: DeleteUser :exec
 DELETE FROM users
 WHERE id = $1;

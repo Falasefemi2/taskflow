@@ -169,6 +169,26 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, e
 	return items, nil
 }
 
+const setUserResetToken = `-- name: SetUserResetToken :exec
+UPDATE users
+SET
+    reset_token = $2,
+    reset_token_expires_at = $3,
+    updated_at = NOW()
+WHERE id = $1
+`
+
+type SetUserResetTokenParams struct {
+	ID                  uuid.UUID          `json:"id"`
+	ResetToken          pgtype.Text        `json:"reset_token"`
+	ResetTokenExpiresAt pgtype.Timestamptz `json:"reset_token_expires_at"`
+}
+
+func (q *Queries) SetUserResetToken(ctx context.Context, arg SetUserResetTokenParams) error {
+	_, err := q.db.Exec(ctx, setUserResetToken, arg.ID, arg.ResetToken, arg.ResetTokenExpiresAt)
+	return err
+}
+
 const updateUser = `-- name: UpdateUser :one
 UPDATE users
 SET
@@ -229,4 +249,37 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const updateUserLastLogin = `-- name: UpdateUserLastLogin :exec
+UPDATE users
+SET
+    last_login_at = NOW(),
+    updated_at = NOW()
+WHERE id = $1
+`
+
+func (q *Queries) UpdateUserLastLogin(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, updateUserLastLogin, id)
+	return err
+}
+
+const updateUserPassword = `-- name: UpdateUserPassword :exec
+UPDATE users
+SET
+    password_hash = $2,
+    reset_token = NULL,
+    reset_token_expires_at = NULL,
+    updated_at = NOW()
+WHERE id = $1
+`
+
+type UpdateUserPasswordParams struct {
+	ID           uuid.UUID `json:"id"`
+	PasswordHash string    `json:"password_hash"`
+}
+
+func (q *Queries) UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParams) error {
+	_, err := q.db.Exec(ctx, updateUserPassword, arg.ID, arg.PasswordHash)
+	return err
 }

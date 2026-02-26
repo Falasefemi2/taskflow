@@ -1,5 +1,7 @@
 version: "3"
+
 dotenv: ['apps/api/.env']
+
 tasks:
   default:
     desc: Show available tasks
@@ -8,13 +10,14 @@ tasks:
     silent: true
 
   setup:
-    desc: Install root and web dependencies
+    desc: Install all dependencies (root + web)
     cmds:
       - bun install
       - bun install --cwd apps/web
+      - task api:tidy
 
   web:dev:
-    desc: Run web app in dev mode
+    desc: Run web app in development
     dir: apps/web
     cmds:
       - bun run dev
@@ -31,6 +34,19 @@ tasks:
     cmds:
       - bun run lint
 
+  web:typecheck:
+    desc: Type-check web app
+    dir: apps/web
+    cmds:
+      - bunx tsc --noEmit
+
+  web:ci:
+    desc: Run all web checks (lint + typecheck + build)
+    deps:
+      - web:lint
+      - web:typecheck
+      - web:build
+
   api:run:
     desc: Run API server
     dir: apps/api
@@ -38,10 +54,48 @@ tasks:
       - go run ./cmd/server
 
   api:build:
-    desc: Build API binaries
+    desc: Build API binary
     dir: apps/api
     cmds:
-      - go build ./...
+      - go build -o bin/server ./cmd/server
+
+  api:tidy:
+    desc: Tidy Go dependencies
+    dir: apps/api
+    cmds:
+      - go mod tidy
+
+  api:fmt:
+    desc: Format Go code
+    dir: apps/api
+    cmds:
+      - go fmt ./...
+
+  api:lint:
+    desc: Lint Go API
+    dir: apps/api
+    cmds:
+      - golangci-lint run ./...
+
+  api:test:
+    desc: Run Go tests
+    dir: apps/api
+    cmds:
+      - go test ./...
+
+  api:coverage:
+    desc: Run tests with coverage
+    dir: apps/api
+    cmds:
+      - go test -coverprofile=coverage.out ./...
+
+  api:ci:
+    desc: Run all API checks (fmt + lint + test + build)
+    deps:
+      - api:fmt
+      - api:lint
+      - api:test
+      - api:build
 
   db:migrate:
     desc: Run database migrations
@@ -56,16 +110,10 @@ tasks:
       - migrate -path db/migrations -database "$DATABASE_URL" down 1
 
   db:status:
-    desc: Check migration status
+    desc: Check migration version
     dir: apps/api
     cmds:
       - migrate -path db/migrations -database "$DATABASE_URL" version
-
-  db:generate:
-    desc: Generate Go code from SQL queries
-    dir: apps/api
-    cmds:
-      - sqlc generate
 
   db:new:
     desc: Create a new migration file
@@ -73,15 +121,20 @@ tasks:
     cmds:
       - migrate create -ext sql -dir db/migrations -seq {{.CLI_ARGS}}
 
-  api:tidy:
-    desc: Tidy Go dependencies
+  db:generate:
+    desc: Generate Go code from SQL (sqlc)
     dir: apps/api
     cmds:
-      - go mod tidy
+      - sqlc generate
 
   build:
-    desc: Build all apps
+    desc: Build entire monorepo
     deps:
-      - api:build
       - web:build
+      - api:build
 
+  ci:
+    desc: Run all checks (web + api)
+    deps:
+      - web:ci
+      - api:ci

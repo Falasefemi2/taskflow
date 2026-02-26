@@ -15,6 +15,7 @@ import (
 	"github.con/falasefemi2/taskflow/api/internal/config"
 	"github.con/falasefemi2/taskflow/api/internal/database"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.con/falasefemi2/taskflow/api/internal/server"
 )
@@ -59,8 +60,30 @@ func main() {
 
 	slog.Info("database migrations applied")
 
+	poolCfg, err := pgxpool.ParseConfig(cfg.Database.URL)
+	if err != nil {
+		slog.Error("failed to parse pgx pool config", "error", err)
+		os.Exit(1)
+	}
+	poolCfg.MaxConns = int32(cfg.Database.MaxOpenConns)
+	poolCfg.MinConns = int32(cfg.Database.MaxIdleConns)
+	poolCfg.MaxConnLifetime = cfg.Database.ConnMaxLifetime
+	poolCfg.MaxConnIdleTime = cfg.Database.ConnMaxIdleTime
+
+	pool, err := pgxpool.NewWithConfig(context.Background(), poolCfg)
+	if err != nil {
+		slog.Error("failed to create pgx pool", "error", err)
+		os.Exit(1)
+	}
+	defer pool.Close()
+
+	if err := pool.Ping(context.Background()); err != nil {
+		slog.Error("failed to ping pgx pool", "error", err)
+		os.Exit(1)
+	}
+
 	// Initialize router
-	handler := server.New(db, cfg)
+	handler := server.New(pool, cfg)
 
 	// Create HTTP server using config timeouts
 	httpServer := &http.Server{
