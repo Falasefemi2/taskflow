@@ -8,7 +8,7 @@ package db
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const createTaskLabel = `-- name: CreateTaskLabel :one
@@ -23,9 +23,9 @@ RETURNING id, task_id, name, color
 `
 
 type CreateTaskLabelParams struct {
-	TaskID pgtype.UUID
-	Name   string
-	Color  string
+	TaskID uuid.UUID `json:"task_id"`
+	Name   string    `json:"name"`
+	Color  string    `json:"color"`
 }
 
 func (q *Queries) CreateTaskLabel(ctx context.Context, arg CreateTaskLabelParams) (TaskLabel, error) {
@@ -45,7 +45,7 @@ DELETE FROM task_labels
 WHERE id = $1
 `
 
-func (q *Queries) DeleteTaskLabel(ctx context.Context, id pgtype.UUID) error {
+func (q *Queries) DeleteTaskLabel(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteTaskLabel, id)
 	return err
 }
@@ -57,7 +57,7 @@ WHERE id = $1
 LIMIT 1
 `
 
-func (q *Queries) GetTaskLabelByID(ctx context.Context, id pgtype.UUID) (TaskLabel, error) {
+func (q *Queries) GetTaskLabelByID(ctx context.Context, id uuid.UUID) (TaskLabel, error) {
 	row := q.db.QueryRow(ctx, getTaskLabelByID, id)
 	var i TaskLabel
 	err := row.Scan(
@@ -78,9 +78,9 @@ LIMIT $2 OFFSET $3
 `
 
 type ListTaskLabelsByTaskIDParams struct {
-	TaskID pgtype.UUID
-	Limit  int32
-	Offset int32
+	TaskID uuid.UUID `json:"task_id"`
+	Limit  int32     `json:"limit"`
+	Offset int32     `json:"offset"`
 }
 
 func (q *Queries) ListTaskLabelsByTaskID(ctx context.Context, arg ListTaskLabelsByTaskIDParams) ([]TaskLabel, error) {
@@ -118,9 +118,9 @@ RETURNING id, task_id, name, color
 `
 
 type UpdateTaskLabelParams struct {
-	ID    pgtype.UUID
-	Name  string
-	Color string
+	ID    uuid.UUID `json:"id"`
+	Name  string    `json:"name"`
+	Color string    `json:"color"`
 }
 
 func (q *Queries) UpdateTaskLabel(ctx context.Context, arg UpdateTaskLabelParams) (TaskLabel, error) {

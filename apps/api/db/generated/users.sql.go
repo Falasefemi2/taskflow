@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -24,10 +25,10 @@ RETURNING id, name, email, password_hash, avatar_url, is_verified, verification_
 `
 
 type CreateUserParams struct {
-	Name         string
-	Email        string
-	PasswordHash string
-	AvatarUrl    pgtype.Text
+	Name         string      `json:"name"`
+	Email        string      `json:"email"`
+	PasswordHash string      `json:"password_hash"`
+	AvatarUrl    pgtype.Text `json:"avatar_url"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -61,7 +62,7 @@ DELETE FROM users
 WHERE id = $1
 `
 
-func (q *Queries) DeleteUser(ctx context.Context, id pgtype.UUID) error {
+func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteUser, id)
 	return err
 }
@@ -101,7 +102,7 @@ WHERE id = $1
 LIMIT 1
 `
 
-func (q *Queries) GetUserByID(ctx context.Context, id pgtype.UUID) (User, error) {
+func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 	row := q.db.QueryRow(ctx, getUserByID, id)
 	var i User
 	err := row.Scan(
@@ -130,8 +131,8 @@ LIMIT $1 OFFSET $2
 `
 
 type ListUsersParams struct {
-	Limit  int32
-	Offset int32
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
 }
 
 func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, error) {
@@ -186,16 +187,16 @@ RETURNING id, name, email, password_hash, avatar_url, is_verified, verification_
 `
 
 type UpdateUserParams struct {
-	ID                  pgtype.UUID
-	Name                string
-	Email               string
-	AvatarUrl           pgtype.Text
-	IsVerified          bool
-	VerificationToken   pgtype.Text
-	ResetToken          pgtype.Text
-	ResetTokenExpiresAt pgtype.Timestamptz
-	Status              string
-	LastLoginAt         pgtype.Timestamptz
+	ID                  uuid.UUID          `json:"id"`
+	Name                string             `json:"name"`
+	Email               string             `json:"email"`
+	AvatarUrl           pgtype.Text        `json:"avatar_url"`
+	IsVerified          bool               `json:"is_verified"`
+	VerificationToken   pgtype.Text        `json:"verification_token"`
+	ResetToken          pgtype.Text        `json:"reset_token"`
+	ResetTokenExpiresAt pgtype.Timestamptz `json:"reset_token_expires_at"`
+	Status              string             `json:"status"`
+	LastLoginAt         pgtype.Timestamptz `json:"last_login_at"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {

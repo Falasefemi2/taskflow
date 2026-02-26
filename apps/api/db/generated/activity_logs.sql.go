@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -28,14 +29,14 @@ RETURNING id, workspace_id, project_id, task_id, user_id, action, entity_type, e
 `
 
 type CreateActivityLogParams struct {
-	WorkspaceID pgtype.UUID
-	ProjectID   pgtype.UUID
-	TaskID      pgtype.UUID
-	UserID      pgtype.UUID
-	Action      string
-	EntityType  string
-	EntityID    pgtype.UUID
-	Metadata    []byte
+	WorkspaceID pgtype.UUID `json:"workspace_id"`
+	ProjectID   pgtype.UUID `json:"project_id"`
+	TaskID      pgtype.UUID `json:"task_id"`
+	UserID      uuid.UUID   `json:"user_id"`
+	Action      string      `json:"action"`
+	EntityType  string      `json:"entity_type"`
+	EntityID    uuid.UUID   `json:"entity_id"`
+	Metadata    []byte      `json:"metadata"`
 }
 
 func (q *Queries) CreateActivityLog(ctx context.Context, arg CreateActivityLogParams) (ActivityLog, error) {
@@ -72,7 +73,7 @@ WHERE id = $1
 LIMIT 1
 `
 
-func (q *Queries) GetActivityLogByID(ctx context.Context, id pgtype.UUID) (ActivityLog, error) {
+func (q *Queries) GetActivityLogByID(ctx context.Context, id uuid.UUID) (ActivityLog, error) {
 	row := q.db.QueryRow(ctx, getActivityLogByID, id)
 	var i ActivityLog
 	err := row.Scan(
@@ -99,9 +100,9 @@ LIMIT $2 OFFSET $3
 `
 
 type ListActivityLogsByProjectIDParams struct {
-	ProjectID pgtype.UUID
-	Limit     int32
-	Offset    int32
+	ProjectID pgtype.UUID `json:"project_id"`
+	Limit     int32       `json:"limit"`
+	Offset    int32       `json:"offset"`
 }
 
 func (q *Queries) ListActivityLogsByProjectID(ctx context.Context, arg ListActivityLogsByProjectIDParams) ([]ActivityLog, error) {
@@ -144,9 +145,9 @@ LIMIT $2 OFFSET $3
 `
 
 type ListActivityLogsByTaskIDParams struct {
-	TaskID pgtype.UUID
-	Limit  int32
-	Offset int32
+	TaskID pgtype.UUID `json:"task_id"`
+	Limit  int32       `json:"limit"`
+	Offset int32       `json:"offset"`
 }
 
 func (q *Queries) ListActivityLogsByTaskID(ctx context.Context, arg ListActivityLogsByTaskIDParams) ([]ActivityLog, error) {
@@ -189,9 +190,9 @@ LIMIT $2 OFFSET $3
 `
 
 type ListActivityLogsByWorkspaceIDParams struct {
-	WorkspaceID pgtype.UUID
-	Limit       int32
-	Offset      int32
+	WorkspaceID pgtype.UUID `json:"workspace_id"`
+	Limit       int32       `json:"limit"`
+	Offset      int32       `json:"offset"`
 }
 
 func (q *Queries) ListActivityLogsByWorkspaceID(ctx context.Context, arg ListActivityLogsByWorkspaceIDParams) ([]ActivityLog, error) {

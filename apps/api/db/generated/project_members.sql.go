@@ -8,7 +8,7 @@ package db
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const addProjectMember = `-- name: AddProjectMember :one
@@ -23,9 +23,9 @@ RETURNING id, project_id, user_id, role, joined_at
 `
 
 type AddProjectMemberParams struct {
-	ProjectID pgtype.UUID
-	UserID    pgtype.UUID
-	Role      string
+	ProjectID uuid.UUID `json:"project_id"`
+	UserID    uuid.UUID `json:"user_id"`
+	Role      string    `json:"role"`
 }
 
 func (q *Queries) AddProjectMember(ctx context.Context, arg AddProjectMemberParams) (ProjectMember, error) {
@@ -50,8 +50,8 @@ LIMIT 1
 `
 
 type GetProjectMemberParams struct {
-	ProjectID pgtype.UUID
-	UserID    pgtype.UUID
+	ProjectID uuid.UUID `json:"project_id"`
+	UserID    uuid.UUID `json:"user_id"`
 }
 
 func (q *Queries) GetProjectMember(ctx context.Context, arg GetProjectMemberParams) (ProjectMember, error) {
@@ -76,9 +76,9 @@ LIMIT $2 OFFSET $3
 `
 
 type ListProjectMembersParams struct {
-	ProjectID pgtype.UUID
-	Limit     int32
-	Offset    int32
+	ProjectID uuid.UUID `json:"project_id"`
+	Limit     int32     `json:"limit"`
+	Offset    int32     `json:"offset"`
 }
 
 func (q *Queries) ListProjectMembers(ctx context.Context, arg ListProjectMembersParams) ([]ProjectMember, error) {
@@ -114,8 +114,8 @@ WHERE project_id = $1
 `
 
 type RemoveProjectMemberParams struct {
-	ProjectID pgtype.UUID
-	UserID    pgtype.UUID
+	ProjectID uuid.UUID `json:"project_id"`
+	UserID    uuid.UUID `json:"user_id"`
 }
 
 func (q *Queries) RemoveProjectMember(ctx context.Context, arg RemoveProjectMemberParams) error {
@@ -132,9 +132,9 @@ RETURNING id, project_id, user_id, role, joined_at
 `
 
 type UpdateProjectMemberRoleParams struct {
-	ProjectID pgtype.UUID
-	UserID    pgtype.UUID
-	Role      string
+	ProjectID uuid.UUID `json:"project_id"`
+	UserID    uuid.UUID `json:"user_id"`
+	Role      string    `json:"role"`
 }
 
 func (q *Queries) UpdateProjectMemberRole(ctx context.Context, arg UpdateProjectMemberRoleParams) (ProjectMember, error) {

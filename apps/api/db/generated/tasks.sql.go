@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -31,17 +32,17 @@ RETURNING id, project_id, title, description, status, priority, assignee_id, rep
 `
 
 type CreateTaskParams struct {
-	ProjectID   pgtype.UUID
-	Title       string
-	Description pgtype.Text
-	Status      string
-	Priority    string
-	AssigneeID  pgtype.UUID
-	ReporterID  pgtype.UUID
-	DueDate     pgtype.Timestamptz
-	CompletedAt pgtype.Timestamptz
-	Position    int32
-	CreatedBy   pgtype.UUID
+	ProjectID   uuid.UUID          `json:"project_id"`
+	Title       string             `json:"title"`
+	Description pgtype.Text        `json:"description"`
+	Status      string             `json:"status"`
+	Priority    string             `json:"priority"`
+	AssigneeID  pgtype.UUID        `json:"assignee_id"`
+	ReporterID  uuid.UUID          `json:"reporter_id"`
+	DueDate     pgtype.Timestamptz `json:"due_date"`
+	CompletedAt pgtype.Timestamptz `json:"completed_at"`
+	Position    int32              `json:"position"`
+	CreatedBy   uuid.UUID          `json:"created_by"`
 }
 
 func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (Task, error) {
@@ -83,7 +84,7 @@ DELETE FROM tasks
 WHERE id = $1
 `
 
-func (q *Queries) DeleteTask(ctx context.Context, id pgtype.UUID) error {
+func (q *Queries) DeleteTask(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteTask, id)
 	return err
 }
@@ -95,7 +96,7 @@ WHERE id = $1
 LIMIT 1
 `
 
-func (q *Queries) GetTaskByID(ctx context.Context, id pgtype.UUID) (Task, error) {
+func (q *Queries) GetTaskByID(ctx context.Context, id uuid.UUID) (Task, error) {
 	row := q.db.QueryRow(ctx, getTaskByID, id)
 	var i Task
 	err := row.Scan(
@@ -126,9 +127,9 @@ LIMIT $2 OFFSET $3
 `
 
 type ListTasksByProjectIDParams struct {
-	ProjectID pgtype.UUID
-	Limit     int32
-	Offset    int32
+	ProjectID uuid.UUID `json:"project_id"`
+	Limit     int32     `json:"limit"`
+	Offset    int32     `json:"offset"`
 }
 
 func (q *Queries) ListTasksByProjectID(ctx context.Context, arg ListTasksByProjectIDParams) ([]Task, error) {
@@ -184,16 +185,16 @@ RETURNING id, project_id, title, description, status, priority, assignee_id, rep
 `
 
 type UpdateTaskParams struct {
-	ID          pgtype.UUID
-	Title       string
-	Description pgtype.Text
-	Status      string
-	Priority    string
-	AssigneeID  pgtype.UUID
-	ReporterID  pgtype.UUID
-	DueDate     pgtype.Timestamptz
-	CompletedAt pgtype.Timestamptz
-	Position    int32
+	ID          uuid.UUID          `json:"id"`
+	Title       string             `json:"title"`
+	Description pgtype.Text        `json:"description"`
+	Status      string             `json:"status"`
+	Priority    string             `json:"priority"`
+	AssigneeID  pgtype.UUID        `json:"assignee_id"`
+	ReporterID  uuid.UUID          `json:"reporter_id"`
+	DueDate     pgtype.Timestamptz `json:"due_date"`
+	CompletedAt pgtype.Timestamptz `json:"completed_at"`
+	Position    int32              `json:"position"`
 }
 
 func (q *Queries) UpdateTask(ctx context.Context, arg UpdateTaskParams) (Task, error) {

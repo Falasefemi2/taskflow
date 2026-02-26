@@ -8,7 +8,7 @@ package db
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const createTaskComment = `-- name: CreateTaskComment :one
@@ -23,9 +23,9 @@ RETURNING id, task_id, user_id, content, created_at, updated_at
 `
 
 type CreateTaskCommentParams struct {
-	TaskID  pgtype.UUID
-	UserID  pgtype.UUID
-	Content string
+	TaskID  uuid.UUID `json:"task_id"`
+	UserID  uuid.UUID `json:"user_id"`
+	Content string    `json:"content"`
 }
 
 func (q *Queries) CreateTaskComment(ctx context.Context, arg CreateTaskCommentParams) (TaskComment, error) {
@@ -47,7 +47,7 @@ DELETE FROM task_comments
 WHERE id = $1
 `
 
-func (q *Queries) DeleteTaskComment(ctx context.Context, id pgtype.UUID) error {
+func (q *Queries) DeleteTaskComment(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteTaskComment, id)
 	return err
 }
@@ -59,7 +59,7 @@ WHERE id = $1
 LIMIT 1
 `
 
-func (q *Queries) GetTaskCommentByID(ctx context.Context, id pgtype.UUID) (TaskComment, error) {
+func (q *Queries) GetTaskCommentByID(ctx context.Context, id uuid.UUID) (TaskComment, error) {
 	row := q.db.QueryRow(ctx, getTaskCommentByID, id)
 	var i TaskComment
 	err := row.Scan(
@@ -82,9 +82,9 @@ LIMIT $2 OFFSET $3
 `
 
 type ListTaskCommentsByTaskIDParams struct {
-	TaskID pgtype.UUID
-	Limit  int32
-	Offset int32
+	TaskID uuid.UUID `json:"task_id"`
+	Limit  int32     `json:"limit"`
+	Offset int32     `json:"offset"`
 }
 
 func (q *Queries) ListTaskCommentsByTaskID(ctx context.Context, arg ListTaskCommentsByTaskIDParams) ([]TaskComment, error) {
@@ -124,8 +124,8 @@ RETURNING id, task_id, user_id, content, created_at, updated_at
 `
 
 type UpdateTaskCommentParams struct {
-	ID      pgtype.UUID
-	Content string
+	ID      uuid.UUID `json:"id"`
+	Content string    `json:"content"`
 }
 
 func (q *Queries) UpdateTaskComment(ctx context.Context, arg UpdateTaskCommentParams) (TaskComment, error) {

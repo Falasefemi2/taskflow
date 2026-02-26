@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -29,15 +30,15 @@ RETURNING id, workspace_id, name, description, status, color, owner_id, start_da
 `
 
 type CreateProjectParams struct {
-	WorkspaceID pgtype.UUID
-	Name        string
-	Description pgtype.Text
-	Status      string
-	Color       pgtype.Text
-	OwnerID     pgtype.UUID
-	StartDate   pgtype.Date
-	DueDate     pgtype.Date
-	CreatedBy   pgtype.UUID
+	WorkspaceID uuid.UUID   `json:"workspace_id"`
+	Name        string      `json:"name"`
+	Description pgtype.Text `json:"description"`
+	Status      string      `json:"status"`
+	Color       pgtype.Text `json:"color"`
+	OwnerID     uuid.UUID   `json:"owner_id"`
+	StartDate   pgtype.Date `json:"start_date"`
+	DueDate     pgtype.Date `json:"due_date"`
+	CreatedBy   uuid.UUID   `json:"created_by"`
 }
 
 func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (Project, error) {
@@ -75,7 +76,7 @@ DELETE FROM projects
 WHERE id = $1
 `
 
-func (q *Queries) DeleteProject(ctx context.Context, id pgtype.UUID) error {
+func (q *Queries) DeleteProject(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteProject, id)
 	return err
 }
@@ -87,7 +88,7 @@ WHERE id = $1
 LIMIT 1
 `
 
-func (q *Queries) GetProjectByID(ctx context.Context, id pgtype.UUID) (Project, error) {
+func (q *Queries) GetProjectByID(ctx context.Context, id uuid.UUID) (Project, error) {
 	row := q.db.QueryRow(ctx, getProjectByID, id)
 	var i Project
 	err := row.Scan(
@@ -116,9 +117,9 @@ LIMIT $2 OFFSET $3
 `
 
 type ListProjectsByWorkspaceIDParams struct {
-	WorkspaceID pgtype.UUID
-	Limit       int32
-	Offset      int32
+	WorkspaceID uuid.UUID `json:"workspace_id"`
+	Limit       int32     `json:"limit"`
+	Offset      int32     `json:"offset"`
 }
 
 func (q *Queries) ListProjectsByWorkspaceID(ctx context.Context, arg ListProjectsByWorkspaceIDParams) ([]Project, error) {
@@ -170,14 +171,14 @@ RETURNING id, workspace_id, name, description, status, color, owner_id, start_da
 `
 
 type UpdateProjectParams struct {
-	ID          pgtype.UUID
-	Name        string
-	Description pgtype.Text
-	Status      string
-	Color       pgtype.Text
-	OwnerID     pgtype.UUID
-	StartDate   pgtype.Date
-	DueDate     pgtype.Date
+	ID          uuid.UUID   `json:"id"`
+	Name        string      `json:"name"`
+	Description pgtype.Text `json:"description"`
+	Status      string      `json:"status"`
+	Color       pgtype.Text `json:"color"`
+	OwnerID     uuid.UUID   `json:"owner_id"`
+	StartDate   pgtype.Date `json:"start_date"`
+	DueDate     pgtype.Date `json:"due_date"`
 }
 
 func (q *Queries) UpdateProject(ctx context.Context, arg UpdateProjectParams) (Project, error) {

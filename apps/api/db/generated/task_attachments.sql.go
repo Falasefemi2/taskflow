@@ -8,7 +8,7 @@ package db
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const createTaskAttachment = `-- name: CreateTaskAttachment :one
@@ -26,12 +26,12 @@ RETURNING id, task_id, uploaded_by, file_name, file_url, file_size, file_type, c
 `
 
 type CreateTaskAttachmentParams struct {
-	TaskID     pgtype.UUID
-	UploadedBy pgtype.UUID
-	FileName   string
-	FileUrl    string
-	FileSize   int32
-	FileType   string
+	TaskID     uuid.UUID `json:"task_id"`
+	UploadedBy uuid.UUID `json:"uploaded_by"`
+	FileName   string    `json:"file_name"`
+	FileUrl    string    `json:"file_url"`
+	FileSize   int32     `json:"file_size"`
+	FileType   string    `json:"file_type"`
 }
 
 func (q *Queries) CreateTaskAttachment(ctx context.Context, arg CreateTaskAttachmentParams) (TaskAttachment, error) {
@@ -62,7 +62,7 @@ DELETE FROM task_attachments
 WHERE id = $1
 `
 
-func (q *Queries) DeleteTaskAttachment(ctx context.Context, id pgtype.UUID) error {
+func (q *Queries) DeleteTaskAttachment(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteTaskAttachment, id)
 	return err
 }
@@ -74,7 +74,7 @@ WHERE id = $1
 LIMIT 1
 `
 
-func (q *Queries) GetTaskAttachmentByID(ctx context.Context, id pgtype.UUID) (TaskAttachment, error) {
+func (q *Queries) GetTaskAttachmentByID(ctx context.Context, id uuid.UUID) (TaskAttachment, error) {
 	row := q.db.QueryRow(ctx, getTaskAttachmentByID, id)
 	var i TaskAttachment
 	err := row.Scan(
@@ -99,9 +99,9 @@ LIMIT $2 OFFSET $3
 `
 
 type ListTaskAttachmentsByTaskIDParams struct {
-	TaskID pgtype.UUID
-	Limit  int32
-	Offset int32
+	TaskID uuid.UUID `json:"task_id"`
+	Limit  int32     `json:"limit"`
+	Offset int32     `json:"offset"`
 }
 
 func (q *Queries) ListTaskAttachmentsByTaskID(ctx context.Context, arg ListTaskAttachmentsByTaskIDParams) ([]TaskAttachment, error) {

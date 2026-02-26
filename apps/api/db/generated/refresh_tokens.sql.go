@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -23,9 +24,9 @@ RETURNING id, user_id, token_hash, expires_at, created_at
 `
 
 type CreateRefreshTokenParams struct {
-	UserID    pgtype.UUID
-	TokenHash string
-	ExpiresAt pgtype.Timestamptz
+	UserID    uuid.UUID          `json:"user_id"`
+	TokenHash string             `json:"token_hash"`
+	ExpiresAt pgtype.Timestamptz `json:"expires_at"`
 }
 
 func (q *Queries) CreateRefreshToken(ctx context.Context, arg CreateRefreshTokenParams) (RefreshToken, error) {
@@ -93,9 +94,9 @@ LIMIT $2 OFFSET $3
 `
 
 type ListRefreshTokensByUserIDParams struct {
-	UserID pgtype.UUID
-	Limit  int32
-	Offset int32
+	UserID uuid.UUID `json:"user_id"`
+	Limit  int32     `json:"limit"`
+	Offset int32     `json:"offset"`
 }
 
 func (q *Queries) ListRefreshTokensByUserID(ctx context.Context, arg ListRefreshTokensByUserIDParams) ([]RefreshToken, error) {

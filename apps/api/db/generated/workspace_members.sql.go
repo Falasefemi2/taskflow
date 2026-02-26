@@ -8,7 +8,7 @@ package db
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const addWorkspaceMember = `-- name: AddWorkspaceMember :one
@@ -23,9 +23,9 @@ RETURNING id, workspace_id, user_id, role, joined_at
 `
 
 type AddWorkspaceMemberParams struct {
-	WorkspaceID pgtype.UUID
-	UserID      pgtype.UUID
-	Role        string
+	WorkspaceID uuid.UUID `json:"workspace_id"`
+	UserID      uuid.UUID `json:"user_id"`
+	Role        string    `json:"role"`
 }
 
 func (q *Queries) AddWorkspaceMember(ctx context.Context, arg AddWorkspaceMemberParams) (WorkspaceMember, error) {
@@ -50,8 +50,8 @@ LIMIT 1
 `
 
 type GetWorkspaceMemberParams struct {
-	WorkspaceID pgtype.UUID
-	UserID      pgtype.UUID
+	WorkspaceID uuid.UUID `json:"workspace_id"`
+	UserID      uuid.UUID `json:"user_id"`
 }
 
 func (q *Queries) GetWorkspaceMember(ctx context.Context, arg GetWorkspaceMemberParams) (WorkspaceMember, error) {
@@ -76,9 +76,9 @@ LIMIT $2 OFFSET $3
 `
 
 type ListWorkspaceMembersParams struct {
-	WorkspaceID pgtype.UUID
-	Limit       int32
-	Offset      int32
+	WorkspaceID uuid.UUID `json:"workspace_id"`
+	Limit       int32     `json:"limit"`
+	Offset      int32     `json:"offset"`
 }
 
 func (q *Queries) ListWorkspaceMembers(ctx context.Context, arg ListWorkspaceMembersParams) ([]WorkspaceMember, error) {
@@ -114,8 +114,8 @@ WHERE workspace_id = $1
 `
 
 type RemoveWorkspaceMemberParams struct {
-	WorkspaceID pgtype.UUID
-	UserID      pgtype.UUID
+	WorkspaceID uuid.UUID `json:"workspace_id"`
+	UserID      uuid.UUID `json:"user_id"`
 }
 
 func (q *Queries) RemoveWorkspaceMember(ctx context.Context, arg RemoveWorkspaceMemberParams) error {
@@ -132,9 +132,9 @@ RETURNING id, workspace_id, user_id, role, joined_at
 `
 
 type UpdateWorkspaceMemberRoleParams struct {
-	WorkspaceID pgtype.UUID
-	UserID      pgtype.UUID
-	Role        string
+	WorkspaceID uuid.UUID `json:"workspace_id"`
+	UserID      uuid.UUID `json:"user_id"`
+	Role        string    `json:"role"`
 }
 
 func (q *Queries) UpdateWorkspaceMemberRole(ctx context.Context, arg UpdateWorkspaceMemberRoleParams) (WorkspaceMember, error) {

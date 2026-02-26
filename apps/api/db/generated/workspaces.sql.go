@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -25,11 +26,11 @@ RETURNING id, name, slug, description, owner_id, status, created_at, updated_at
 `
 
 type CreateWorkspaceParams struct {
-	Name        string
-	Slug        string
-	Description pgtype.Text
-	OwnerID     pgtype.UUID
-	Status      string
+	Name        string      `json:"name"`
+	Slug        string      `json:"slug"`
+	Description pgtype.Text `json:"description"`
+	OwnerID     uuid.UUID   `json:"owner_id"`
+	Status      string      `json:"status"`
 }
 
 func (q *Queries) CreateWorkspace(ctx context.Context, arg CreateWorkspaceParams) (Workspace, error) {
@@ -59,7 +60,7 @@ DELETE FROM workspaces
 WHERE id = $1
 `
 
-func (q *Queries) DeleteWorkspace(ctx context.Context, id pgtype.UUID) error {
+func (q *Queries) DeleteWorkspace(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteWorkspace, id)
 	return err
 }
@@ -71,7 +72,7 @@ WHERE id = $1
 LIMIT 1
 `
 
-func (q *Queries) GetWorkspaceByID(ctx context.Context, id pgtype.UUID) (Workspace, error) {
+func (q *Queries) GetWorkspaceByID(ctx context.Context, id uuid.UUID) (Workspace, error) {
 	row := q.db.QueryRow(ctx, getWorkspaceByID, id)
 	var i Workspace
 	err := row.Scan(
@@ -119,9 +120,9 @@ LIMIT $2 OFFSET $3
 `
 
 type ListWorkspacesByOwnerIDParams struct {
-	OwnerID pgtype.UUID
-	Limit   int32
-	Offset  int32
+	OwnerID uuid.UUID `json:"owner_id"`
+	Limit   int32     `json:"limit"`
+	Offset  int32     `json:"offset"`
 }
 
 func (q *Queries) ListWorkspacesByOwnerID(ctx context.Context, arg ListWorkspacesByOwnerIDParams) ([]Workspace, error) {
@@ -167,12 +168,12 @@ RETURNING id, name, slug, description, owner_id, status, created_at, updated_at
 `
 
 type UpdateWorkspaceParams struct {
-	ID          pgtype.UUID
-	Name        string
-	Slug        string
-	Description pgtype.Text
-	OwnerID     pgtype.UUID
-	Status      string
+	ID          uuid.UUID   `json:"id"`
+	Name        string      `json:"name"`
+	Slug        string      `json:"slug"`
+	Description pgtype.Text `json:"description"`
+	OwnerID     uuid.UUID   `json:"owner_id"`
+	Status      string      `json:"status"`
 }
 
 func (q *Queries) UpdateWorkspace(ctx context.Context, arg UpdateWorkspaceParams) (Workspace, error) {

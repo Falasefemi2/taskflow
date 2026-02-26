@@ -43,11 +43,35 @@ tasks:
     cmds:
       - go build ./...
 
-  api:sqlc:
-    desc: Generate sqlc code
+  db:migrate:
+    desc: Run database migrations
+    dir: apps/api
+    cmds:
+      - migrate -path db/migrations -database "$DATABASE_URL" up
+
+  db:rollback:
+    desc: Roll back last migration
+    dir: apps/api
+    cmds:
+      - migrate -path db/migrations -database "$DATABASE_URL" down 1
+
+  db:status:
+    desc: Check migration status
+    dir: apps/api
+    cmds:
+      - migrate -path db/migrations -database "$DATABASE_URL" version
+
+  db:generate:
+    desc: Generate Go code from SQL queries
     dir: apps/api
     cmds:
       - sqlc generate
+
+  db:new:
+    desc: Create a new migration file
+    dir: apps/api
+    cmds:
+      - migrate create -ext sql -dir db/migrations -seq {{.CLI_ARGS}}
 
   api:tidy:
     desc: Tidy Go dependencies

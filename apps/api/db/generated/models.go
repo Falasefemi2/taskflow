@@ -5,128 +5,129 @@
 package db
 
 import (
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type ActivityLog struct {
-	ID          pgtype.UUID
-	WorkspaceID pgtype.UUID
-	ProjectID   pgtype.UUID
-	TaskID      pgtype.UUID
-	UserID      pgtype.UUID
-	Action      string
-	EntityType  string
-	EntityID    pgtype.UUID
-	Metadata    []byte
-	CreatedAt   pgtype.Timestamptz
+	ID          uuid.UUID          `json:"id"`
+	WorkspaceID pgtype.UUID        `json:"workspace_id"`
+	ProjectID   pgtype.UUID        `json:"project_id"`
+	TaskID      pgtype.UUID        `json:"task_id"`
+	UserID      uuid.UUID          `json:"user_id"`
+	Action      string             `json:"action"`
+	EntityType  string             `json:"entity_type"`
+	EntityID    uuid.UUID          `json:"entity_id"`
+	Metadata    []byte             `json:"metadata"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 }
 
 type Project struct {
-	ID          pgtype.UUID
-	WorkspaceID pgtype.UUID
-	Name        string
-	Description pgtype.Text
-	Status      string
-	Color       pgtype.Text
-	OwnerID     pgtype.UUID
-	StartDate   pgtype.Date
-	DueDate     pgtype.Date
-	CreatedAt   pgtype.Timestamptz
-	UpdatedAt   pgtype.Timestamptz
-	CreatedBy   pgtype.UUID
+	ID          uuid.UUID          `json:"id"`
+	WorkspaceID uuid.UUID          `json:"workspace_id"`
+	Name        string             `json:"name"`
+	Description pgtype.Text        `json:"description"`
+	Status      string             `json:"status"`
+	Color       pgtype.Text        `json:"color"`
+	OwnerID     uuid.UUID          `json:"owner_id"`
+	StartDate   pgtype.Date        `json:"start_date"`
+	DueDate     pgtype.Date        `json:"due_date"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+	CreatedBy   uuid.UUID          `json:"created_by"`
 }
 
 type ProjectMember struct {
-	ID        pgtype.UUID
-	ProjectID pgtype.UUID
-	UserID    pgtype.UUID
-	Role      string
-	JoinedAt  pgtype.Timestamptz
+	ID        uuid.UUID          `json:"id"`
+	ProjectID uuid.UUID          `json:"project_id"`
+	UserID    uuid.UUID          `json:"user_id"`
+	Role      string             `json:"role"`
+	JoinedAt  pgtype.Timestamptz `json:"joined_at"`
 }
 
 type RefreshToken struct {
-	ID        pgtype.UUID
-	UserID    pgtype.UUID
-	TokenHash string
-	ExpiresAt pgtype.Timestamptz
-	CreatedAt pgtype.Timestamptz
+	ID        uuid.UUID          `json:"id"`
+	UserID    uuid.UUID          `json:"user_id"`
+	TokenHash string             `json:"token_hash"`
+	ExpiresAt pgtype.Timestamptz `json:"expires_at"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
 
 type Task struct {
-	ID          pgtype.UUID
-	ProjectID   pgtype.UUID
-	Title       string
-	Description pgtype.Text
-	Status      string
-	Priority    string
-	AssigneeID  pgtype.UUID
-	ReporterID  pgtype.UUID
-	DueDate     pgtype.Timestamptz
-	CompletedAt pgtype.Timestamptz
-	Position    int32
-	CreatedAt   pgtype.Timestamptz
-	UpdatedAt   pgtype.Timestamptz
-	CreatedBy   pgtype.UUID
+	ID          uuid.UUID          `json:"id"`
+	ProjectID   uuid.UUID          `json:"project_id"`
+	Title       string             `json:"title"`
+	Description pgtype.Text        `json:"description"`
+	Status      string             `json:"status"`
+	Priority    string             `json:"priority"`
+	AssigneeID  pgtype.UUID        `json:"assignee_id"`
+	ReporterID  uuid.UUID          `json:"reporter_id"`
+	DueDate     pgtype.Timestamptz `json:"due_date"`
+	CompletedAt pgtype.Timestamptz `json:"completed_at"`
+	Position    int32              `json:"position"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+	CreatedBy   uuid.UUID          `json:"created_by"`
 }
 
 type TaskAttachment struct {
-	ID         pgtype.UUID
-	TaskID     pgtype.UUID
-	UploadedBy pgtype.UUID
-	FileName   string
-	FileUrl    string
-	FileSize   int32
-	FileType   string
-	CreatedAt  pgtype.Timestamptz
+	ID         uuid.UUID          `json:"id"`
+	TaskID     uuid.UUID          `json:"task_id"`
+	UploadedBy uuid.UUID          `json:"uploaded_by"`
+	FileName   string             `json:"file_name"`
+	FileUrl    string             `json:"file_url"`
+	FileSize   int32              `json:"file_size"`
+	FileType   string             `json:"file_type"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at"`
 }
 
 type TaskComment struct {
-	ID        pgtype.UUID
-	TaskID    pgtype.UUID
-	UserID    pgtype.UUID
-	Content   string
-	CreatedAt pgtype.Timestamptz
-	UpdatedAt pgtype.Timestamptz
+	ID        uuid.UUID          `json:"id"`
+	TaskID    uuid.UUID          `json:"task_id"`
+	UserID    uuid.UUID          `json:"user_id"`
+	Content   string             `json:"content"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
 }
 
 type TaskLabel struct {
-	ID     pgtype.UUID
-	TaskID pgtype.UUID
-	Name   string
-	Color  string
+	ID     uuid.UUID `json:"id"`
+	TaskID uuid.UUID `json:"task_id"`
+	Name   string    `json:"name"`
+	Color  string    `json:"color"`
 }
 
 type User struct {
-	ID                  pgtype.UUID
-	Name                string
-	Email               string
-	PasswordHash        string
-	AvatarUrl           pgtype.Text
-	IsVerified          bool
-	VerificationToken   pgtype.Text
-	ResetToken          pgtype.Text
-	ResetTokenExpiresAt pgtype.Timestamptz
-	Status              string
-	LastLoginAt         pgtype.Timestamptz
-	CreatedAt           pgtype.Timestamptz
-	UpdatedAt           pgtype.Timestamptz
+	ID                  uuid.UUID          `json:"id"`
+	Name                string             `json:"name"`
+	Email               string             `json:"email"`
+	PasswordHash        string             `json:"password_hash"`
+	AvatarUrl           pgtype.Text        `json:"avatar_url"`
+	IsVerified          bool               `json:"is_verified"`
+	VerificationToken   pgtype.Text        `json:"verification_token"`
+	ResetToken          pgtype.Text        `json:"reset_token"`
+	ResetTokenExpiresAt pgtype.Timestamptz `json:"reset_token_expires_at"`
+	Status              string             `json:"status"`
+	LastLoginAt         pgtype.Timestamptz `json:"last_login_at"`
+	CreatedAt           pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt           pgtype.Timestamptz `json:"updated_at"`
 }
 
 type Workspace struct {
-	ID          pgtype.UUID
-	Name        string
-	Slug        string
-	Description pgtype.Text
-	OwnerID     pgtype.UUID
-	Status      string
-	CreatedAt   pgtype.Timestamptz
-	UpdatedAt   pgtype.Timestamptz
+	ID          uuid.UUID          `json:"id"`
+	Name        string             `json:"name"`
+	Slug        string             `json:"slug"`
+	Description pgtype.Text        `json:"description"`
+	OwnerID     uuid.UUID          `json:"owner_id"`
+	Status      string             `json:"status"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
 }
 
 type WorkspaceMember struct {
-	ID          pgtype.UUID
-	WorkspaceID pgtype.UUID
-	UserID      pgtype.UUID
-	Role        string
-	JoinedAt    pgtype.Timestamptz
+	ID          uuid.UUID          `json:"id"`
+	WorkspaceID uuid.UUID          `json:"workspace_id"`
+	UserID      uuid.UUID          `json:"user_id"`
+	Role        string             `json:"role"`
+	JoinedAt    pgtype.Timestamptz `json:"joined_at"`
 }
