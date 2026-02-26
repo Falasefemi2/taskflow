@@ -1,0 +1,57 @@
+version: "3"
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+    silent: true
+
+  setup:
+    desc: Install root and web dependencies
+    cmds:
+      - bun install
+      - bun install --cwd apps/web
+
+  web:dev:
+    desc: Run web app in dev mode
+    dir: apps/web
+    cmds:
+      - bun run dev
+
+  web:build:
+    desc: Build web app
+    dir: apps/web
+    cmds:
+      - bun run build
+
+  web:lint:
+    desc: Lint web app
+    dir: apps/web
+    cmds:
+      - bun run lint
+
+  api:run:
+    desc: Run API server
+    dir: apps/api
+    cmds:
+      - go run ./cmd/server
+
+  api:build:
+    desc: Build API binaries
+    dir: apps/api
+    cmds:
+      - go build ./...
+
+  api:sqlc:
+    desc: Generate sqlc code
+    dir: apps/api
+    cmds:
+      - sqlc generate
+
+  build:
+    desc: Build all apps
+    deps:
+      - api:build
+      - web:build
+
