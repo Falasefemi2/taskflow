@@ -10,12 +10,15 @@ import (
 	db "github.con/falasefemi2/taskflow/api/db/generated"
 	"github.con/falasefemi2/taskflow/api/internal/auth"
 	"github.con/falasefemi2/taskflow/api/internal/config"
+	mw "github.con/falasefemi2/taskflow/api/internal/middleware"
+	"github.con/falasefemi2/taskflow/api/internal/workspace"
 )
 
 func New(pool *pgxpool.Pool, cfg *config.Config) http.Handler {
 	r := chi.NewRouter()
 	queries := db.New(pool)
 	authHandler := auth.NewHandler(queries, cfg)
+	workspaceHandler := workspace.NewHandler(queries, cfg)
 
 	// Global middleware
 	r.Use(middleware.RequestID)
@@ -38,14 +41,26 @@ func New(pool *pgxpool.Pool, cfg *config.Config) http.Handler {
 		}
 	})
 
-	r.Route("/auth", func(ar chi.Router) {
+	// public
+	r.Route("/api/v1/auth", func(ar chi.Router) {
 		ar.Post("/register", authHandler.Register)
 		ar.Post("/login", authHandler.Login)
 		ar.Post("/refresh", authHandler.Refresh)
 		ar.Post("/logout", authHandler.Logout)
 		ar.Post("/forgot-password", authHandler.ForgotPassword)
 		ar.Post("/reset-password", authHandler.ResetPassword)
-		ar.Get("/me", authHandler.Me)
+	})
+
+	// protected
+	r.Group(func(r chi.Router) {
+		r.Use(mw.AuthMiddleware(cfg.Auth.JWTSecret))
+
+		r.Get("/api/v1/auth/me", authHandler.Me)
+		r.Post("/api/v1/workspaces", workspaceHandler.CreateWorkspace)
+		r.Get("/api/v1/workspaces", workspaceHandler.ListWorkspaces)
+		r.Get("/{id}", workspaceHandler.GetWorkspace)
+		r.Put("/{id}", workspaceHandler.UpdateWorkspace)
+		r.Delete("/{id}", workspaceHandler.DeleteWorkspace)
 	})
 
 	return r
